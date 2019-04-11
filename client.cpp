@@ -13,20 +13,17 @@ Client::Client(QObject *parent) : QObject(parent)
     udpsocket = new QUdpSocket(this);
 
   //  Message msg =Message();
-     tcpList = new QList<Message*>();
-     udpList = new QList<Message*>();
+    tcpList = new QList<Message*>();
+    udpList = new QList<Message*>();
 
-
-     receivedTcpDatagramNumber=0;
-     receivedUdpDatagramNumber=0;
-
+    receivedTcpDatagramNumber = 0;
+    receivedUdpDatagramNumber = 0;
 
     connect(udpsocket,SIGNAL(readyRead()),this,SLOT(ReadDatagrams()));
 
     timer = new QTimer(this);
     timer->setInterval(1000);
     connect(timer,SIGNAL(timeout()),this,SLOT(OnTimer()));
-
 }
 
 Client::~Client()
@@ -38,8 +35,8 @@ Client::~Client()
             delete abc;
             abc = nullptr;
         }
-    delete tcpList;
-    tcpList = nullptr;
+        delete tcpList;
+        tcpList = nullptr;
     }
 
     delete udpsocket;
@@ -60,12 +57,11 @@ void Client::SendTcpDatagrams()
 
 void Client::OnTimer()
 {
-
     QDataStream out(&message, QIODevice::WriteOnly);
-    out<<tcpList->at(0)->number
-       <<tcpList->at(0)->protocol
-       <<tcpList->at(0)->text;
-    udpsocket->writeDatagram(message,serveraddress,serverport);
+    out << tcpList->at(0)->number
+        << tcpList->at(0)->protocol
+        << tcpList->at(0)->text;
+    udpsocket->writeDatagram(message, serveraddress, serverport);
 
 }
 void Client::SendUdpDatagrams()
@@ -73,11 +69,12 @@ void Client::SendUdpDatagrams()
   //  QByteArray message;
     QDataStream out(&message, QIODevice::WriteOnly);
 
-    foreach (Message *msg, *udpList) {
-        out<<msg->number
-           <<msg->protocol
-           <<msg->text;
-        udpsocket->writeDatagram(message,serveraddress,serverport);
+    foreach (Message *msg, *udpList)
+    {
+        out << msg->number
+            << msg->protocol
+            << msg->text;
+        udpsocket->writeDatagram(message, serveraddress, serverport);
     }
 }
 
@@ -85,15 +82,19 @@ void Client::SendUdpDatagrams()
 
 void Client::ShowList()
 {
-    foreach (Message *mes, *tcpList) {
-        qDebug()<<mes->text;
-        qDebug()<<mes->number;
+    foreach (Message *mes, *tcpList)
+    {
+        qDebug() << mes->text;
+        qDebug() << mes->number;
     }
-    foreach (Message *mes, *udpList) {
-        qDebug()<<mes->text;
-        qDebug()<<mes->number;
+
+    foreach (Message *mes, *udpList)
+    {
+        qDebug() << mes->text;
+        qDebug() << mes->number;
     }
 }
+
 /*
  * MainWindow::MainWindow(QWidget *parent) :
 QMainWindow(parent),
@@ -127,11 +128,11 @@ _list = nullptr;
 
 delete ui;
 }*/
+
 void Client::ReadDatagrams()
 {
     while(udpsocket->hasPendingDatagrams())
     {
-
         QHostAddress sender;
         quint16 senderPort;
         QByteArray datagram;
@@ -143,14 +144,16 @@ void Client::ReadDatagrams()
 
         QDataStream in(&datagram, QIODevice::ReadOnly);
 
-          udpsocket->readDatagram(datagram.data(),datagram.size(),
-                &sender,&senderPort);
+        udpsocket->readDatagram(datagram.data(),
+                                datagram.size(),
+                                &sender,
+                                &senderPort);
 
           // quint32 current_number;
           //  int checksum;
         //    QString msg;
 
-          in>>current_number>>current_protocol>>msg;
+          in >> current_number >> current_protocol >> msg;
           if(current_protocol)
           {
               receivedTcpDatagramNumber++;
@@ -164,14 +167,10 @@ void Client::ReadDatagrams()
              receivedUdpDatagramNumber++;
           }
 
-            emit id(QString::number(current_number));
-            emit _message(msg);
-
+          emit id(QString::number(current_number));
+          emit _message(msg);
     }
 }
-
-
-
 
 QString Client::GetServerAdrress()
 {

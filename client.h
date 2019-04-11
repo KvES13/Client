@@ -31,10 +31,9 @@ public:
     explicit Client(QObject *parent = nullptr);
     ~Client();
 
-
 signals:
-void id(QString curr);
-void _message(QString mess);
+    void id(QString curr);
+    void _message(QString mess);
 
 public slots:
     void SendTcpDatagrams();
@@ -49,7 +48,7 @@ public slots:
 
 private:
   //  Message *msg;
-    QUdpSocket *udpsocket;
+    QUdpSocket *udpsocket = nullptr;
     QHostAddress address;
     quint16 port;
     bool flag = false;
