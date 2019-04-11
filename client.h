@@ -8,6 +8,8 @@
 #include <QDataStream>
 #include <QList>
 #include <QTimer>
+
+/* Сообщение */
 struct Message
 {
     int number;
