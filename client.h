@@ -8,15 +8,15 @@
 #include <QDataStream>
 #include <QList>
 #include <QTimer>
-
+#include <QDebug>
 /* Сообщение */
 struct Message
 {
     int number;
-    bool protocol;
+    quint8 protocol;
     QString text;
 
-    Message(int _number,bool _protocol, QString _text)
+    Message(int _number,quint8 _protocol, QString _text)
     {
         number = _number;
         protocol = _protocol;
@@ -34,33 +34,38 @@ public:
 signals:
     void id(QString curr);
     void _message(QString mess);
+    void array(QByteArray arr);
 
 public slots:
     void SendTcpDatagrams();
     void SendUdpDatagrams();
     void ReadDatagrams();
-    QString GetServerAdrress();
-    QString GetServerPort();
-    void ShowList();
+    void ShowList(); // потом удалить
     void FillList(int id, QString data);
     int GetReceivedUdpDatagramNumber();
     int GetReceivedTcpDatagramNumber();
+    int GetSentUdpDatagramNumber();  // Sent или по-другому?
+    int GetSentTcpDatagramNumber();  // Sent или по-другому?
+    QString GetServerAdrress();
+    QString GetServerPort();
+    void DeleteList();  //пока в пУблик
 
+
+    void Send(int i,QString s);
 private:
-  //  Message *msg;
     QUdpSocket *udpsocket = nullptr;
     QHostAddress address;
     quint16 port;
-    bool flag = false;
     QList<Message*> *tcpList = nullptr;
     QList<Message*> *udpList = nullptr;
     QTimer *timer = nullptr;
-    QByteArray message;
     int receivedUdpDatagramNumber;
     int receivedTcpDatagramNumber;
-
+    int sentUdpDatagramNumber; //Sent или по-другому?
+    int sentTcpDatagramNumber; // Sent или по-другому?
 private slots:
     void OnTimer();
+
 
 };
 
