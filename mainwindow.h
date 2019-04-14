@@ -36,12 +36,14 @@ public slots:
 private slots:
     void on_SendButton_clicked();
     void on_ClearButton_clicked();
-    void on_lineCount_textChanged(const QString &arg1);
     void OnTimer();
     void on_lineSizeTcp_textChanged(const QString &arg1);
     void on_lineTimeTcp_textChanged(const QString &arg1);
     void on_lineCountUdp_textChanged(const QString &arg1);
     void on_lineSizeUdp_textChanged(const QString &arg1);
+    void FillTcp();
+    void FillUdp();
+    void on_lineCountTcp_textChanged(const QString &arg1);
 };
 
 #endif // MAINWINDOW_H

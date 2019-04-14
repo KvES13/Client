@@ -28,17 +28,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(timer,SIGNAL(timeout()),this,SLOT(OnTimer()));
 
     //Заполнение списков /////////////////////////////////////////
-    QString msg;
-    for(int i = 0; i < 5; i++)
-    {
-        msg+="a";
-    }
-
-    for (int i = 0; i < countTcpDatagrams; i++)
-    {
-        client->FillList(i, msg);
-    }
-    // /////////////////////////////////////
+    FillTcp();
+    FillUdp();
 }
 
 MainWindow::~MainWindow()
@@ -47,6 +38,34 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+//Заполнение TCP
+void MainWindow::FillTcp()
+{
+    QString msg;
+    for(int i = 0; i < sizeTcp; i++)
+    {
+        msg+="a";
+    }
+
+    for (int i = 0; i < countTcpDatagrams; i++)
+    {
+        client->FillTcpList(i, msg);
+    }
+}
+//Заполнение UDP
+void MainWindow::FillUdp()
+{
+    QString msg;
+    for(int i = 0; i < sizeUdp; i++)
+    {
+        msg+="a";
+    }
+
+    for (int i = 0; i < countUdpDatagrams; i++)
+    {
+        client->FillUdpList(i, msg);
+    }
+}
 void MainWindow::OnTimer()
 {
    // ХЗ КАК НОРМ СДЕЛАТЬ
@@ -94,23 +113,38 @@ void MainWindow::on_ClearButton_clicked()
     ui->textBrowser->clear();
     count_send = 0;
     count_rec = 0;
+
+    client->ClearTcpList();
+    FillTcp();
+
+    client->ClearUdpList();
+    FillUdp();
+
 }
+
 
 // Число TCP датаграмм
-void MainWindow::on_lineCount_textChanged(const QString &arg1)
+void MainWindow::on_lineCountTcp_textChanged(const QString &arg1)
 {
     countTcpDatagrams = arg1.toInt();
-
+    client->ClearTcpList();
+    FillTcp();
 }
+
+
 //Размер TCP сообщения
 void MainWindow::on_lineSizeTcp_textChanged(const QString &arg1)
 {
     sizeTcp = arg1.toInt();
+    client->ClearTcpList();
+    FillTcp();
 }
 //Время задержки TCP датаграммы
 void MainWindow::on_lineTimeTcp_textChanged(const QString &arg1)
 {
     timeTcp = arg1.toInt();
+    client->ClearTcpList();
+    FillTcp();
 }
 
 
@@ -118,9 +152,14 @@ void MainWindow::on_lineTimeTcp_textChanged(const QString &arg1)
 void MainWindow::on_lineCountUdp_textChanged(const QString &arg1)
 {
     countUdpDatagrams =arg1.toInt();
+    client->ClearUdpList();
+    FillUdp();
 }
 //Размер UDP сообщения
 void MainWindow::on_lineSizeUdp_textChanged(const QString &arg1)
 {
     sizeUdp = arg1.toInt();
+    client->ClearUdpList();
+    FillUdp();
 }
+

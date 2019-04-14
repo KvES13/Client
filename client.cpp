@@ -34,6 +34,7 @@ Client::~Client()
     DeleteList();
     udpsocket->close();
 }
+//Удаление списков
 void Client::DeleteList()
 {
     if (tcpList)
@@ -57,19 +58,37 @@ void Client::DeleteList()
         udpList = nullptr;
     }
 }
+//Очистка TCP списка
+void Client::ClearTcpList()
+{
+    tcpList->clear();
+}
+//Очистка UDP списка
+void Client::ClearUdpList()
+{
+    udpList->clear();
+}
+//Заполнение TCP списка
+void Client::FillTcpList(int id, QString data)
+{
 
-void Client::FillList(int id, QString data)
+     tcpList->append(new Message(id,1,data));
+
+}
+//Заполнение UDP списка
+void Client::FillUdpList(int id, QString data)
 {
      udpList->append(new Message(id,0,data+"udp"));
-     tcpList->append(new Message(id,1,data));
 }
-
+//Отправление первой TCP датаграммы
+//и датаграмм по таймеру
 void Client::SendTcpDatagrams()
 {
     OnTimer();
     timer->start();
 }
 
+//Отправка TCP датаграмм
 void Client::OnTimer()
 {
     if(!tcpList->isEmpty())
@@ -85,17 +104,7 @@ void Client::OnTimer()
 
 }
 
-//Удалить потом///////////////////////////
-void Client::Send(int i,QString s)
-{
-     QByteArray message;
-     QDataStream out(&message, QIODevice::WriteOnly);
-     quint8 p =0;
-     out<<i<<p<<s;
-     udpsocket->writeDatagram(message,message.size(), serveraddress, serverport);
-       qDebug()<<QString::number(message.size())<<"Send"<<i;
-}
-// ///////////////////////////////////////
+//Отправка UDP датаграмм
 void Client::SendUdpDatagrams()
 {
     foreach (Message *msg, *udpList)
@@ -109,7 +118,6 @@ void Client::SendUdpDatagrams()
         sentUdpDatagramNumber++;
 
     }
-
 
 }
 
@@ -128,7 +136,7 @@ void Client::ShowList()
 ////    }
 }
 
-
+//Чтение входящих датаграмм
 void Client::ReadDatagrams()
 {
     while(udpsocket->hasPendingDatagrams())
@@ -176,29 +184,32 @@ void Client::ReadDatagrams()
           emit array(arr);
     }
 }
-
+//Адрес сервера
 QString Client::GetServerAdrress()
 {
     return QHostAddress(serveraddress).toString();
 }
-
+//Порт сервера
 QString Client::GetServerPort()
 {
     return QString::number(serverport);
 }
-
+//Число полученных UDP датаграмм
 int Client::GetReceivedUdpDatagramNumber()
 {
     return receivedUdpDatagramNumber;
 }
+//Число полученных TCP датаграмм
 int Client::GetReceivedTcpDatagramNumber()
 {
     return receivedTcpDatagramNumber;
 }
+//Число отправленных UDP датаграмм
 int Client::GetSentUdpDatagramNumber()
 {
     return sentUdpDatagramNumber;
 }
+//Число отправленных TCP датаграмм
 int Client::GetSentTcpDatagramNumber()
 {
     return sentTcpDatagramNumber;

@@ -40,17 +40,18 @@ public slots:
     void SendUdpDatagrams();
     void ReadDatagrams();
     void ShowList(); // потом удалить
-    void FillList(int id, QString data);
+    void FillTcpList(int id, QString data);
+    void FillUdpList(int id, QString data);
     int GetReceivedUdpDatagramNumber();
     int GetReceivedTcpDatagramNumber();
     int GetSentUdpDatagramNumber();  // Sent или по-другому?
     int GetSentTcpDatagramNumber();  // Sent или по-другому?
     QString GetServerAdrress();
     QString GetServerPort();
-    void DeleteList();  //пока в пУблик
 
+    void ClearTcpList();
+    void ClearUdpList();
 
-    void Send(int i,QString s);
 private:
     QUdpSocket *udpsocket = nullptr;
     QHostAddress address;
@@ -64,7 +65,7 @@ private:
     int sentTcpDatagramNumber; // Sent или по-другому?
 private slots:
     void OnTimer();
-
+    void DeleteList();  //пока в пУблик
 
 };
 
