@@ -32,8 +32,7 @@ public:
     ~Client();
 
 signals:
-    void id(QString curr);
-    void _message(QString mess);
+
     void array(QByteArray arr);
 
 public slots:

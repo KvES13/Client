@@ -169,12 +169,10 @@ void Client::ReadDatagrams()
              receivedUdpDatagramNumber++;
           }
 
-          emit id(QString::number(current_number));
-          emit _message(msg);
 
           QByteArray arr;
-             QDataStream out(&arr, QIODevice::WriteOnly);
-             out<<current_number<<current_protocol<<msg;
+          QDataStream out(&arr, QIODevice::WriteOnly);
+          out<<sender<<senderPort<<current_number<<current_protocol<<msg;
           emit array(arr);
     }
 }

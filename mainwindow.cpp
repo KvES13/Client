@@ -14,10 +14,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->lineAddress_2->setText((client->GetServerAdrress()));
     ui->linePort_2->setText((client->GetServerPort()));
 
-    datagrams_count=ui->lineCount->text().toInt();
+    countTcpDatagrams=ui->lineCountTcp->text().toInt();
+    countUdpDatagrams=ui->lineCountUdp->text().toInt();
+    sizeTcp=ui->lineSizeTcp->text().toInt();
+    sizeUdp=ui->lineSizeUdp->text().toInt();
+    timeTcp=ui->lineTimeTcp->text().toInt();
 
-    connect(client,SIGNAL(id(QString)),this,SLOT(showID(QString)));
-    connect(client,SIGNAL(_message(QString)),this,SLOT(showMessage(QString)));
     connect(client,SIGNAL(array(QByteArray)),this,SLOT(showArray(QByteArray)));
 
     //Таймер для вывода информации об отправленных/полученных сообщениях
@@ -32,7 +34,7 @@ MainWindow::MainWindow(QWidget *parent) :
         msg+="a";
     }
 
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < countTcpDatagrams; i++)
     {
         client->FillList(i, msg);
     }
@@ -67,26 +69,22 @@ void MainWindow::on_SendButton_clicked()
 }
 
 
-void MainWindow::showMessage(QString msg)
-{
-    //ui->plainTextEdit->appendPlainText(msg);
-}
 
-
-void MainWindow::showID(QString id)
-{
-    //ui->plainTextEdit->appendPlainText(id);
-}
 
 void MainWindow::showArray(QByteArray arr)
 {
   QDataStream in(&arr, QIODevice::ReadOnly);
-  int n;
-  quint8 p;
-  QString m;
+  quint32 number;
+  quint8 protocol;
+  QString msg;
+  QHostAddress sender;
+  quint16 senderPort;
 
-  in>>n>>p>>m;
-  ui->plainTextEdit->appendPlainText("Номер: " + QString::number(n) + "\tПротокол: "+ QString::number(p) + "\tСообщение: " + m);
+  in>>sender>>senderPort>>number>>protocol>>msg;
+  ui->plainTextEdit->appendPlainText("IP: "+ sender.toString()+"  Port:" + QString::number(senderPort)
+                                     +"  Номер: " + QString::number(number)
+                                     + "  Протокол: "+ QString::number(protocol)
+                                     + "  Сообщение: " + msg);
 }
 
 void MainWindow::on_ClearButton_clicked()
@@ -97,23 +95,32 @@ void MainWindow::on_ClearButton_clicked()
     count_send = 0;
     count_rec = 0;
 }
+
+// Число TCP датаграмм
 void MainWindow::on_lineCount_textChanged(const QString &arg1)
 {
-    datagrams_count = arg1.toInt();
+    countTcpDatagrams = arg1.toInt();
 
-//    timer->stop();
+}
+//Размер TCP сообщения
+void MainWindow::on_lineSizeTcp_textChanged(const QString &arg1)
+{
+    sizeTcp = arg1.toInt();
+}
+//Время задержки TCP датаграммы
+void MainWindow::on_lineTimeTcp_textChanged(const QString &arg1)
+{
+    timeTcp = arg1.toInt();
+}
 
-//    ////////////////////////////
-//    client->DeleteList();
-//    QString msg;
-//    for(int i = 0; i < 30; i++)
-//    {
-//        msg+="a";
-//    }
 
-//    for (int i = 0; i < datagrams_count; i++)
-//    {
-//        client->FillList(i, msg);
-//    }
-//    /////////////////////////////
+//Число UDP датаграмм
+void MainWindow::on_lineCountUdp_textChanged(const QString &arg1)
+{
+    countUdpDatagrams =arg1.toInt();
+}
+//Размер UDP сообщения
+void MainWindow::on_lineSizeUdp_textChanged(const QString &arg1)
+{
+    sizeUdp = arg1.toInt();
 }

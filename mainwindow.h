@@ -22,13 +22,15 @@ private:
       QTimer *timer = nullptr;
       int count_send;
       int count_rec;
-      int datagrams_count;
+      int countTcpDatagrams;
+      int countUdpDatagrams;
+      int sizeTcp;
+      int sizeUdp;
+      int timeTcp;
 public slots:
   //  quint32 check_order (quint32 &prev, quint32 &cur );
   //  quint32 check_sum (int &sum, QString &message );
 
-    void showMessage(QString msg);
-    void showID(QString id);
     void showArray(QByteArray arr);
 
 private slots:
@@ -36,6 +38,10 @@ private slots:
     void on_ClearButton_clicked();
     void on_lineCount_textChanged(const QString &arg1);
     void OnTimer();
+    void on_lineSizeTcp_textChanged(const QString &arg1);
+    void on_lineTimeTcp_textChanged(const QString &arg1);
+    void on_lineCountUdp_textChanged(const QString &arg1);
+    void on_lineSizeUdp_textChanged(const QString &arg1);
 };
 
 #endif // MAINWINDOW_H

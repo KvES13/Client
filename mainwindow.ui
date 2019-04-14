@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>651</width>
-    <height>546</height>
+    <width>580</width>
+    <height>570</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,9 +17,9 @@
    <widget class="QPushButton" name="ClearButton">
     <property name="geometry">
      <rect>
-      <x>490</x>
-      <y>430</y>
-      <width>111</width>
+      <x>470</x>
+      <y>470</y>
+      <width>91</width>
       <height>41</height>
      </rect>
     </property>
@@ -30,8 +30,8 @@
    <widget class="QCheckBox" name="checkBox">
     <property name="geometry">
      <rect>
-      <x>360</x>
-      <y>350</y>
+      <x>380</x>
+      <y>390</y>
       <width>111</width>
       <height>17</height>
      </rect>
@@ -48,8 +48,8 @@
    <widget class="QTextBrowser" name="textBrowser">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>330</y>
+      <x>40</x>
+      <y>370</y>
       <width>320</width>
       <height>140</height>
      </rect>
@@ -58,9 +58,9 @@
    <widget class="QPushButton" name="SendButton">
     <property name="geometry">
      <rect>
-      <x>350</x>
-      <y>430</y>
-      <width>111</width>
+      <x>370</x>
+      <y>470</y>
+      <width>91</width>
       <height>41</height>
      </rect>
     </property>
@@ -71,10 +71,10 @@
    <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>311</width>
-      <height>41</height>
+      <x>40</x>
+      <y>10</y>
+      <width>362</width>
+      <height>22</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
@@ -110,29 +110,11 @@
      </item>
     </layout>
    </widget>
-   <widget class="QLabel" name="label_count">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>30</y>
-      <width>131</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>12</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>число пакетов</string>
-    </property>
-   </widget>
    <widget class="QCheckBox" name="checkBox_sum">
     <property name="geometry">
      <rect>
-      <x>360</x>
-      <y>380</y>
+      <x>380</x>
+      <y>420</y>
       <width>181</width>
       <height>17</height>
      </rect>
@@ -149,30 +131,159 @@
    <widget class="QPlainTextEdit" name="plainTextEdit">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>70</y>
-      <width>621</width>
-      <height>251</height>
+      <x>40</x>
+      <y>140</y>
+      <width>500</width>
+      <height>220</height>
      </rect>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineCount">
+   <widget class="QWidget" name="formLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>120</x>
+      <x>40</x>
       <y>40</y>
-      <width>51</width>
-      <height>20</height>
+      <width>241</width>
+      <height>111</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <pointsize>12</pointsize>
-     </font>
+    <layout class="QFormLayout" name="formLayout">
+     <property name="rowWrapPolicy">
+      <enum>QFormLayout::DontWrapRows</enum>
+     </property>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_CountTcp">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Число пакетов</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="lineCountTcp">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>100</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_SizeTcp">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Размер пакета</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLineEdit" name="lineSizeTcp">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>100</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_TimeTcp">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Время ожидания </string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QLineEdit" name="lineTimeTcp">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>1000</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="formLayoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>40</y>
+      <width>211</width>
+      <height>51</height>
+     </rect>
     </property>
-    <property name="text">
-     <string>100</string>
-    </property>
+    <layout class="QFormLayout" name="formLayout_2">
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_CountUdp">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Число пакетов</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="lineCountUdp">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>100</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_SizeUdp">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Размер пакета</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLineEdit" name="lineSizeUdp">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>100</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -180,7 +291,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>651</width>
+     <width>580</width>
      <height>21</height>
     </rect>
    </property>
