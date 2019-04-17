@@ -132,7 +132,7 @@
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>140</y>
+      <y>150</y>
       <width>500</width>
       <height>220</height>
      </rect>
@@ -141,28 +141,16 @@
    <widget class="QWidget" name="formLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>40</x>
+      <x>160</x>
       <y>40</y>
       <width>241</width>
-      <height>111</height>
+      <height>101</height>
      </rect>
     </property>
     <layout class="QFormLayout" name="formLayout">
      <property name="rowWrapPolicy">
       <enum>QFormLayout::DontWrapRows</enum>
      </property>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_CountTcp">
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Число пакетов</string>
-       </property>
-      </widget>
-     </item>
      <item row="2" column="1">
       <widget class="QLineEdit" name="lineCountTcp">
        <property name="font">
@@ -223,20 +211,8 @@
        </property>
       </widget>
      </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="formLayoutWidget_2">
-    <property name="geometry">
-     <rect>
-      <x>290</x>
-      <y>40</y>
-      <width>211</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <layout class="QFormLayout" name="formLayout_2">
      <item row="2" column="0">
-      <widget class="QLabel" name="label_CountUdp">
+      <widget class="QLabel" name="label_CountTcp">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
@@ -247,39 +223,32 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="QLineEdit" name="lineCountUdp">
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>50</y>
+      <width>61</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QRadioButton" name="radioButton">
        <property name="text">
-        <string>100</string>
+        <string>UDP</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_SizeUdp">
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
+     <item>
+      <widget class="QRadioButton" name="radioButton_2">
        <property name="text">
-        <string>Размер пакета</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QLineEdit" name="lineSizeUdp">
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>100</string>
+        <string>TCP</string>
        </property>
       </widget>
      </item>

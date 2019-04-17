@@ -9,15 +9,22 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    //
     client = new Client();
 
+    //Вывод на экран ip адрес получателя
     ui->lineAddress_2->setText((client->GetServerAdrress()));
+    //Вывод на экран номер порта получателя
     ui->linePort_2->setText((client->GetServerPort()));
 
+    //Задание начальных значений
+    //Количество сообщений
     countTcpDatagrams=ui->lineCountTcp->text().toInt();
-    countUdpDatagrams=ui->lineCountUdp->text().toInt();
+
+    //Размер сообщения
     sizeTcp=ui->lineSizeTcp->text().toInt();
-    sizeUdp=ui->lineSizeUdp->text().toInt();
+
+    //Время таймера
     timeTcp=ui->lineTimeTcp->text().toInt();
 
     connect(client,SIGNAL(array(QByteArray)),this,SLOT(showArray(QByteArray)));
@@ -106,15 +113,23 @@ void MainWindow::showArray(QByteArray arr)
                                      + "  Сообщение: " + msg);
 }
 
+
+//Обрабокта нажатия на кнопку "Удалить"
 void MainWindow::on_ClearButton_clicked()
 {
+    //Остановка таймера
     timer->stop();
+    //Очистка ?
     ui->plainTextEdit->clear();
     ui->textBrowser->clear();
+    //Обнуление количества отправленных сообщений
     count_send = 0;
+    //Обнуление количества полученных сообщений
     count_rec = 0;
 
+    //Очистка списка
     client->ClearTcpList();
+    //Заполнение списка
     FillTcp();
 
     client->ClearUdpList();
@@ -148,18 +163,4 @@ void MainWindow::on_lineTimeTcp_textChanged(const QString &arg1)
 }
 
 
-//Число UDP датаграмм
-void MainWindow::on_lineCountUdp_textChanged(const QString &arg1)
-{
-    countUdpDatagrams =arg1.toInt();
-    client->ClearUdpList();
-    FillUdp();
-}
-//Размер UDP сообщения
-void MainWindow::on_lineSizeUdp_textChanged(const QString &arg1)
-{
-    sizeUdp = arg1.toInt();
-    client->ClearUdpList();
-    FillUdp();
-}
 
