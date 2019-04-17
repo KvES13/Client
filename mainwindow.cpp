@@ -19,24 +19,24 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //Задание начальных значений
     //Количество сообщений
-    countTcpDatagrams=ui->lineCountTcp->text().toInt();
-
+    countDatagrams=ui->lineCountTcp->text().toInt();
     //Размер сообщения
-    sizeTcp=ui->lineSizeTcp->text().toInt();
-
+    sizeMessage=ui->lineSizeTcp->text().toInt();
     //Время таймера
     timeTcp=ui->lineTimeTcp->text().toInt();
+
+    radioButTcp = false;
 
     connect(client,SIGNAL(array(QByteArray)),this,SLOT(showArray(QByteArray)));
 
     //Таймер для вывода информации об отправленных/полученных сообщениях
     timer = new QTimer(this);
-    timer->setInterval(10);
+    timer->setInterval(1);
     connect(timer,SIGNAL(timeout()),this,SLOT(OnTimer()));
 
-    //Заполнение списков /////////////////////////////////////////
-    FillTcp();
-    FillUdp();
+    //Заполнение списка /////////////////////////////////////////
+    FillList();
+    //FillUdp();
 }
 
 MainWindow::~MainWindow()
@@ -45,44 +45,40 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-//Заполнение TCP
-void MainWindow::FillTcp()
+//Заполнение Списка
+void MainWindow::FillList()
 {
+    //Сделать нормально
     QString msg;
-    for(int i = 0; i < sizeTcp; i++)
+    for(int i = 0; i < sizeMessage; i++)
     {
         msg+="a";
     }
 
-    for (int i = 0; i < countTcpDatagrams; i++)
+    for (int i = 0; i < countDatagrams; i++)
     {
-        client->FillTcpList(i, msg);
+        if(radioButTcp)
+        {
+            client->FillTcpList(i, msg);
+        }
+        else
+        {
+            client->FillUdpList(i,msg);
+        }
     }
 }
-//Заполнение UDP
-void MainWindow::FillUdp()
-{
-    QString msg;
-    for(int i = 0; i < sizeUdp; i++)
-    {
-        msg+="a";
-    }
 
-    for (int i = 0; i < countUdpDatagrams; i++)
-    {
-        client->FillUdpList(i, msg);
-    }
-}
 void MainWindow::OnTimer()
 {
-   // ХЗ КАК НОРМ СДЕЛАТЬ
-    QString sentTcp = QString::number(client->GetSentTcpDatagramNumber());
-    QString sentUdp = QString::number(client->GetSentUdpDatagramNumber());
-    QString recTcp = QString::number(client->GetReceivedTcpDatagramNumber());
-    QString recUdp = QString::number(client->GetReceivedUdpDatagramNumber());
+    //
+    count_send = client->GetSentDatagramNumber();
+    count_rec = client->GetReceivedDatagramNumber();
 
-    ui->textBrowser->setText("TCP Отправлено/Получено: "+sentTcp +"/" + recTcp+"\n"
-                             + "UDP Отправлено/Получено: " + sentUdp + "/" + recUdp);
+    ui->textBrowser->setText("TCP Отправлено/Получено: "+QString::number(count_send) +"/" +
+                                QString::number(count_rec)+"\n");
+//    ui->lineSizeTcp->setEnabled(false);
+//    ui->lineTimeTcp->setEnabled(false);
+//    ui->lineCountTcp->setEnabled(false);
 }
 
 void MainWindow::on_SendButton_clicked()
@@ -90,8 +86,15 @@ void MainWindow::on_SendButton_clicked()
 //    for (int i = 0;i<10;i++)
 //        client->Send(i,"123456789");
     timer->start();
-    client->SendUdpDatagrams();
+    if(radioButTcp)
+    {
     client->SendTcpDatagrams();
+    }
+    else
+    {
+    client->SendUdpDatagrams();
+    }
+
 }
 
 
@@ -122,45 +125,57 @@ void MainWindow::on_ClearButton_clicked()
     //Очистка ?
     ui->plainTextEdit->clear();
     ui->textBrowser->clear();
+//    ui->lineSizeTcp->setEnabled(true);
+//    ui->lineTimeTcp->setEnabled(true);
+//    ui->lineCountTcp->setEnabled(true);
     //Обнуление количества отправленных сообщений
     count_send = 0;
     //Обнуление количества полученных сообщений
     count_rec = 0;
 
     //Очистка списка
-    client->ClearTcpList();
+    client->ClearList();
     //Заполнение списка
-    FillTcp();
-
-    client->ClearUdpList();
-    FillUdp();
+    FillList();
 
 }
 
 
-// Число TCP датаграмм
+// Число датаграмм
 void MainWindow::on_lineCountTcp_textChanged(const QString &arg1)
 {
-    countTcpDatagrams = arg1.toInt();
-    client->ClearTcpList();
-    FillTcp();
+    countDatagrams = arg1.toInt();
+    client->ClearList();
+    FillList();
 }
 
 
-//Размер TCP сообщения
+//Размер сообщения
 void MainWindow::on_lineSizeTcp_textChanged(const QString &arg1)
 {
-    sizeTcp = arg1.toInt();
-    client->ClearTcpList();
-    FillTcp();
+    sizeMessage = arg1.toInt();
+    client->ClearList();
+    FillList();
 }
 //Время задержки TCP датаграммы
 void MainWindow::on_lineTimeTcp_textChanged(const QString &arg1)
 {
     timeTcp = arg1.toInt();
-    client->ClearTcpList();
-    FillTcp();
+    client->ClearList();
+    FillList();
 }
 
 
 
+
+void MainWindow::on_radioButtonTcp_clicked()
+{
+    ui->lineTimeTcp->setEnabled(true);
+    radioButTcp = true;
+}
+
+void MainWindow::on_radioButtonUdp_clicked()
+{
+    ui->lineTimeTcp->setEnabled(false);
+    radioButTcp = false;
+}

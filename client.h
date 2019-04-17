@@ -9,6 +9,7 @@
 #include <QList>
 #include <QTimer>
 #include <QDebug>
+#include <QCryptographicHash>
 
 /* Сообщение */
 struct Message
@@ -50,19 +51,16 @@ public slots:
     //Заполнение списка UDP сообщений
     void FillUdpList(int id, QString data);
     //Число полученных в ответ датаграмм
-    int GetReceivedUdpDatagramNumber();
-    int GetReceivedTcpDatagramNumber();
+    int GetReceivedDatagramNumber();
     //Число отправленных датаграмм
-    int GetSentUdpDatagramNumber();  // Sent или по-другому?
-    int GetSentTcpDatagramNumber();  // Sent или по-другому?
+    int GetSentDatagramNumber();  // Sent или по-другому?
     //IP адрес получателя
     QString GetServerAdrress();
     //Номер протокола получателя
     QString GetServerPort();
 
     //Очистка списка
-    void ClearTcpList();
-    void ClearUdpList();
+    void ClearList();
 
 private:
     //
@@ -72,17 +70,16 @@ private:
     //Номер порта
     quint16 port;
     //Список сообщений
-    QList<Message*> *tcpList = nullptr;
-    QList<Message*> *udpList = nullptr;
+    QList<Message*> *List = nullptr;
+  //  QList<Message*> *udpList = nullptr;
     //Таймер для повторной отправки сообщения
     //по протоколу TCP
     QTimer *timer = nullptr;
     //Число полученных датаграмм
-    int receivedUdpDatagramNumber;
-    int receivedTcpDatagramNumber;
+    int receivedDatagramNumber;
     //Число отправленных датаграмм
-    int sentUdpDatagramNumber; //Sent или по-другому?
-    int sentTcpDatagramNumber; // Sent или по-другому?
+    int sentDatagramNumber; //Sent или по-другому?
+
 private slots:
     //Отправка повторного сообщения по истечению таймера
     void OnTimer();

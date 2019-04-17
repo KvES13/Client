@@ -13,19 +13,18 @@ Client::Client(QObject *parent) : QObject(parent)
     udpsocket = new QUdpSocket(this);
 
 
-    tcpList = new QList<Message*>();
-    udpList = new QList<Message*>();
+    List = new QList<Message*>();
+    //udpList = new QList<Message*>();
 
     //Вот это мб в конструкторе в заголовочном прописывать?
-    receivedTcpDatagramNumber = 0;
-    receivedUdpDatagramNumber = 0;
-    sentUdpDatagramNumber =0;
-    sentTcpDatagramNumber =0;
+    receivedDatagramNumber = 0;
+    sentDatagramNumber =0;
+
 
     connect(udpsocket,SIGNAL(readyRead()),this,SLOT(ReadDatagrams()));
 
     timer = new QTimer(this);
-    timer->setInterval(1000);
+    timer->setInterval(1);
     connect(timer,SIGNAL(timeout()),this,SLOT(OnTimer()));
 }
 
@@ -37,49 +36,58 @@ Client::~Client()
 //Удаление списков
 void Client::DeleteList()
 {
-    if (tcpList)
+    if (List)
     {
-        foreach (Message *abc, *tcpList)
+        foreach (Message *abc, *List)
         {
             delete abc;
             abc = nullptr;
         }
-        delete tcpList;
-        tcpList = nullptr;
+        delete List;
+        List = nullptr;
     }
-    if (udpList)
-    {
-        foreach (Message *abc, *udpList)
-        {
-            delete abc;
-            abc = nullptr;
-        }
-        delete udpList;
-        udpList = nullptr;
-    }
+
 }
-//Очистка TCP списка
-void Client::ClearTcpList()
+
+//Очистка списка
+void Client::ClearList()
 {
-    tcpList->clear();
+    List->clear();
 }
-//Очистка UDP списка
-void Client::ClearUdpList()
-{
-    udpList->clear();
-}
+
 //Заполнение TCP списка
 void Client::FillTcpList(int id, QString data)
 {
 
-     tcpList->append(new Message(id,1,data));
+     List->append(new Message(id,1,data));
+
+     //
+
+     // Например
+  QString s = data + QString::number(id);
+     QByteArray ba = data.toUtf8();
+     QString d;
+     d=  QCryptographicHash::hash(ba, QCryptographicHash::Sha256).toHex();
+     //QString t = b
+qDebug()<<d;
 
 }
 //Заполнение UDP списка
 void Client::FillUdpList(int id, QString data)
 {
-     udpList->append(new Message(id,0,data+"udp"));
+     List->append(new Message(id,0,data+"udp"));
+
+     QString s = data + QString::number(id);
+        QByteArray ba = data.toUtf8();
+        QString d;
+        qDebug()<< QCryptographicHash::hash(ba, QCryptographicHash::Sha256).toHex();
+                qDebug()<<"md5"<< QCryptographicHash::hash(ba, QCryptographicHash::Md5).toHex();
+                        qDebug()<<"sha1"<< QCryptographicHash::hash(ba, QCryptographicHash::Sha1).toHex();
+        //QString t = b
+  // qDebug()<<d;
 }
+
+
 //Отправление первой TCP датаграммы
 //и датаграмм по таймеру
 void Client::SendTcpDatagrams()
@@ -91,15 +99,15 @@ void Client::SendTcpDatagrams()
 //Отправка TCP датаграмм
 void Client::OnTimer()
 {
-    if(!tcpList->isEmpty())
+    if(!List->isEmpty())
     {
     QByteArray message;
     QDataStream out(&message, QIODevice::WriteOnly);
-    out << tcpList->at(0)->number
-        << tcpList->at(0)->protocol
-        << tcpList->at(0)->text;
+    out << List->at(0)->number
+        << List->at(0)->protocol
+        << List->at(0)->text;
     udpsocket->writeDatagram(message, serveraddress, serverport);
-    sentTcpDatagramNumber++;
+    sentDatagramNumber++;
     }
 
 }
@@ -107,7 +115,7 @@ void Client::OnTimer()
 //Отправка UDP датаграмм
 void Client::SendUdpDatagrams()
 {
-    foreach (Message *msg, *udpList)
+    foreach (Message *msg, *List)
     {
         QByteArray message;
         QDataStream out(&message, QIODevice::WriteOnly);
@@ -115,7 +123,7 @@ void Client::SendUdpDatagrams()
             << msg->protocol
             << msg->text;
         udpsocket->writeDatagram(message, serveraddress, serverport);
-        sentUdpDatagramNumber++;
+        sentDatagramNumber++;
 
     }
 
@@ -161,21 +169,17 @@ void Client::ReadDatagrams()
           in >> current_number >> current_protocol >> msg;
           if(current_protocol)
           {
-              receivedTcpDatagramNumber++;
               timer->stop();
-              tcpList->removeAt(0);
-              if(tcpList->isEmpty())
+              List->removeAt(0);
+              if(List->isEmpty())
                   timer->stop();
               else {
                    SendTcpDatagrams();
                    }
-
-
           }
-          else
-          {
-             receivedUdpDatagramNumber++;
-          }
+
+             receivedDatagramNumber++;
+
 
 
           QByteArray arr;
@@ -194,24 +198,16 @@ QString Client::GetServerPort()
 {
     return QString::number(serverport);
 }
-//Число полученных UDP датаграмм
-int Client::GetReceivedUdpDatagramNumber()
+//Число полученных датаграмм
+int Client::GetReceivedDatagramNumber()
 {
-    return receivedUdpDatagramNumber;
+    return receivedDatagramNumber;
 }
-//Число полученных TCP датаграмм
-int Client::GetReceivedTcpDatagramNumber()
+
+//Число отправленных датаграмм
+int Client::GetSentDatagramNumber()
 {
-    return receivedTcpDatagramNumber;
+    return sentDatagramNumber;
 }
-//Число отправленных UDP датаграмм
-int Client::GetSentUdpDatagramNumber()
-{
-    return sentUdpDatagramNumber;
-}
-//Число отправленных TCP датаграмм
-int Client::GetSentTcpDatagramNumber()
-{
-    return sentTcpDatagramNumber;
-}
+
 

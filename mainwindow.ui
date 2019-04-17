@@ -159,7 +159,7 @@
         </font>
        </property>
        <property name="text">
-        <string>100</string>
+        <string>10</string>
        </property>
       </widget>
      </item>
@@ -183,7 +183,7 @@
         </font>
        </property>
        <property name="text">
-        <string>100</string>
+        <string>10</string>
        </property>
       </widget>
      </item>
@@ -201,6 +201,9 @@
      </item>
      <item row="4" column="1">
       <widget class="QLineEdit" name="lineTimeTcp">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="font">
         <font>
          <pointsize>12</pointsize>
@@ -225,7 +228,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>40</x>
@@ -236,7 +239,7 @@
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QRadioButton" name="radioButton">
+      <widget class="QRadioButton" name="radioButtonUdp">
        <property name="text">
         <string>UDP</string>
        </property>
@@ -246,7 +249,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QRadioButton" name="radioButton_2">
+      <widget class="QRadioButton" name="radioButtonTcp">
        <property name="text">
         <string>TCP</string>
        </property>

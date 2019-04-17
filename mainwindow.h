@@ -27,14 +27,14 @@ private:
       //Число полученных сообщений
       int count_rec;
       //Заданное количество сообщений
-      int countTcpDatagrams;
-      int countUdpDatagrams;
+      int countDatagrams;
+
       //Размер одного сообщения
-      int sizeTcp;
-      int sizeUdp;
-      //Время для повторной отправки
-      //сообщения по протоколу tcp
+      int sizeMessage;
+      //Время для повторной отправки сообщения по протоколу tcp
       int timeTcp;
+      //
+      bool radioButTcp;
 public slots:
   //  quint32 check_order (quint32 &prev, quint32 &cur );
   //  quint32 check_sum (int &sum, QString &message );
@@ -55,9 +55,11 @@ private slots:
     //Изменение количества отправляемых сообщений
     void on_lineCountTcp_textChanged(const QString &arg1);
     //Заполнение списков
-    void FillTcp();
-    void FillUdp();
+    void FillList();
 
+
+    void on_radioButtonTcp_clicked();
+    void on_radioButtonUdp_clicked();
 };
 
 #endif // MAINWINDOW_H
