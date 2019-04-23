@@ -27,7 +27,7 @@ private:
       //Число полученных сообщений
       int count_rec;
       //Заданное количество сообщений
-      int countDatagrams;
+       quint32 countDatagrams;
 
       //Размер одного сообщения
       int sizeMessage;
@@ -46,8 +46,6 @@ private slots:
     void on_SendButton_clicked();
     //Обработка нажатия на кнопку "Удалить"
     void on_ClearButton_clicked();
-    //Таймер, по которому выводится статистика
-    void OnTimer();
     //Изменение значения размера сообщения
     void on_lineSizeTcp_textChanged(const QString &arg1);
     //Изменение времени таймера
@@ -56,10 +54,11 @@ private slots:
     void on_lineCountTcp_textChanged(const QString &arg1);
     //Заполнение списков
     void FillList();
+    //Проверка чекбокса
+    bool CheckRetry();
 
 
-    void on_radioButtonTcp_clicked();
-    void on_radioButtonUdp_clicked();
+    void on_checkBox_Retry_stateChanged(int arg1);
 };
 
 #endif // MAINWINDOW_H

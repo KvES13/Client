@@ -7,34 +7,25 @@
 #define serverport 5000
 
 
-
 Client::Client(QObject *parent) : QObject(parent)
+//Client::Client(int count,int size, int time)
 {
+
+
     udpsocket = new QUdpSocket(this);
 
 
     List = new QList<Message*>();
     //udpList = new QList<Message*>();
 
-    //Вот это мб в конструкторе в заголовочном прописывать?
-    receivedDatagramNumber = 0;
-    sentDatagramNumber =0;
-
-
     connect(udpsocket,SIGNAL(readyRead()),this,SLOT(ReadDatagrams()));
 
     timer = new QTimer(this);
-    timer->setInterval(1);
+   // timer->setInterval(1);
     connect(timer,SIGNAL(timeout()),this,SLOT(OnTimer()));
 }
 
 Client::~Client()
-{
-    DeleteList();
-    udpsocket->close();
-}
-//Удаление списков
-void Client::DeleteList()
 {
     if (List)
     {
@@ -46,45 +37,25 @@ void Client::DeleteList()
         delete List;
         List = nullptr;
     }
-
+    udpsocket->close();
 }
 
-//Очистка списка
-void Client::ClearList()
-{
-    List->clear();
-}
 
-//Заполнение TCP списка
-void Client::FillTcpList(int id, QString data)
+
+//Заполнение списка
+void Client::FillList(quint32 id,bool protocol, QString data, int timeTcp)
 {
 
-     List->append(new Message(id,1,data));
+     QByteArray sum = data.toUtf8()+ QString::number(id).toUtf8();
+     QString MD5sum = QCryptographicHash::hash(sum, QCryptographicHash::Md5).toHex();
 
-     //
+     List->append(new Message(id,protocol,data,MD5sum));
+     timer->setInterval(timeTcp);
 
-     // Например
-  QString s = data + QString::number(id);
-     QByteArray ba = data.toUtf8();
-     QString d;
-     d=  QCryptographicHash::hash(ba, QCryptographicHash::Sha256).toHex();
-     //QString t = b
-qDebug()<<d;
+     qDebug()<<MD5sum<<MD5sum.size();
 
-}
-//Заполнение UDP списка
-void Client::FillUdpList(int id, QString data)
-{
-     List->append(new Message(id,0,data+"udp"));
 
-     QString s = data + QString::number(id);
-        QByteArray ba = data.toUtf8();
-        QString d;
-        qDebug()<< QCryptographicHash::hash(ba, QCryptographicHash::Sha256).toHex();
-                qDebug()<<"md5"<< QCryptographicHash::hash(ba, QCryptographicHash::Md5).toHex();
-                        qDebug()<<"sha1"<< QCryptographicHash::hash(ba, QCryptographicHash::Sha1).toHex();
-        //QString t = b
-  // qDebug()<<d;
+
 }
 
 
@@ -105,7 +76,8 @@ void Client::OnTimer()
     QDataStream out(&message, QIODevice::WriteOnly);
     out << List->at(0)->number
         << List->at(0)->protocol
-        << List->at(0)->text;
+        << List->at(0)->text
+        << List->at(0)->checkSum;
     udpsocket->writeDatagram(message, serveraddress, serverport);
     sentDatagramNumber++;
     }
@@ -121,27 +93,22 @@ void Client::SendUdpDatagrams()
         QDataStream out(&message, QIODevice::WriteOnly);
         out << msg->number
             << msg->protocol
-            << msg->text;
+            << msg->text
+            << msg->checkSum;
         udpsocket->writeDatagram(message, serveraddress, serverport);
         sentDatagramNumber++;
-
     }
 
 }
 
 
 
-void Client::ShowList()
+void Client::Reset()
 {
-//    foreach (Message *mes, *tcpList)
-//    {
-//        qDebug() << mes->protocol<<" "<<mes->number << mes->text;
-//    }
-
-////    foreach (Message *mes, *udpList)
-////    {
-////        qDebug() << mes->protocol<<" "<<mes->number << mes->text;
-////    }
+    timer->stop();
+    List->clear();
+    sentDatagramNumber =0;
+    receivedDatagramNumber=0;
 }
 
 //Чтение входящих датаграмм
@@ -153,10 +120,11 @@ void Client::ReadDatagrams()
         QHostAddress sender;
         quint16 senderPort;
         QByteArray datagram;
-        quint8 current_protocol;
+        bool current_protocol;
 
-        int current_number;
+        quint32 current_number;
         QString msg;
+       // QString sum;
         datagram.resize(udpsocket->pendingDatagramSize());
 
         QDataStream in(&datagram, QIODevice::ReadOnly);
