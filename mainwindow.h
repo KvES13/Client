@@ -27,7 +27,7 @@ private:
       //Число полученных сообщений
       int count_rec;
       //Заданное количество сообщений
-       quint32 countDatagrams;
+      int countDatagrams;
 
       //Размер одного сообщения
       int sizeMessage;

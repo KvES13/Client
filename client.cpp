@@ -2,8 +2,8 @@
 
 //#define address QHostAddress::LocalHost
 //#define address QHostAddress("192.168.1.39")
-#define serveraddress QHostAddress::LocalHost
-//#define serveraddress QHostAddress("192.168.204.129")
+//#define serveraddress QHostAddress::LocalHost
+#define serveraddress QHostAddress("192.168.204.129")
 #define serverport 5000
 
 
@@ -21,8 +21,10 @@ Client::Client(QObject *parent) : QObject(parent)
     connect(udpsocket,SIGNAL(readyRead()),this,SLOT(ReadDatagrams()));
 
     timer = new QTimer(this);
+    timerRec = new QTimer(this);
    // timer->setInterval(1);
     connect(timer,SIGNAL(timeout()),this,SLOT(OnTimer()));
+    connect(timerRec,SIGNAL(timeout()),this,SLOT(MsgTimeOut()));
 }
 
 Client::~Client()
@@ -43,16 +45,37 @@ Client::~Client()
 
 
 //Заполнение списка
-void Client::FillList(quint32 id,bool protocol, QString data, int timeTcp)
+void Client::FillList(int count,bool protocol, int size, int timeTcp)
 {
+    //Размер сообщения
+    QString msg;
+    for(int i = 0; i < size; i++)
+    {
+        msg+="a";
+    }
 
-     QByteArray sum = data.toUtf8()+ QString::number(id).toUtf8();
-     QString MD5sum = QCryptographicHash::hash(sum, QCryptographicHash::Md5).toHex();
+    //Заполнение
+    for (int j=0;j<count; j++)
+    {
+        //Рассчет контрольной суммы
+        QByteArray sum = msg.toUtf8()+ QString::number(j).toUtf8();
+        QString MD5sum = QCryptographicHash::hash(sum, QCryptographicHash::Md5).toHex();
+        //Добавление структуры в список
+        List->append(new Message(j,protocol,msg,MD5sum));
+    }
 
-     List->append(new Message(id,protocol,data,MD5sum));
+     //Установка значения для таймера
      timer->setInterval(timeTcp);
 
-     qDebug()<<MD5sum<<MD5sum.size();
+
+     if(timeTcp<1000)
+     {
+        timerRec->setInterval(2000);
+     }
+     else
+     {
+        timerRec->setInterval(timeTcp*2);
+     }
 
 
 
@@ -65,6 +88,7 @@ void Client::SendTcpDatagrams()
 {
     OnTimer();
     timer->start();
+    timerRec->start();
 }
 
 //Отправка TCP датаграмм
@@ -83,10 +107,16 @@ void Client::OnTimer()
     }
 
 }
-
+void Client:: MsgTimeOut()
+{
+    QByteArray arr;
+    arr +="Не удается получить ответ от " ;
+    emit array(arr);
+}
 //Отправка UDP датаграмм
 void Client::SendUdpDatagrams()
 {
+    timerRec->start();
     foreach (Message *msg, *List)
     {
         QByteArray message;
@@ -105,8 +135,12 @@ void Client::SendUdpDatagrams()
 
 void Client::Reset()
 {
+    //Остановка таймеров
     timer->stop();
+    timerRec->stop();
+    //Очистка списка
     List->clear();
+    //Обнуление значений
     sentDatagramNumber =0;
     receivedDatagramNumber=0;
 }
@@ -116,13 +150,17 @@ void Client::ReadDatagrams()
 {
     while(udpsocket->hasPendingDatagrams())
     {
-
+        //Адрес получателя
         QHostAddress sender;
+        //Порт получателя
         quint16 senderPort;
+        //Входящая датаграмма
         QByteArray datagram;
+        //Номер протокола
         bool current_protocol;
-
+        //Номер датаграммы
         quint32 current_number;
+        //Сообщение
         QString msg;
        // QString sum;
         datagram.resize(udpsocket->pendingDatagramSize());
@@ -135,24 +173,34 @@ void Client::ReadDatagrams()
                                 &senderPort);
 
           in >> current_number >> current_protocol >> msg;
+          //Остановка таймера таймаута
+          timerRec->stop();
+          //Если пришло сообщение с протоколом 1
           if(current_protocol)
           {
+              //Остановка таймера
               timer->stop();
+              //Удаление первого элемента из списка
               List->removeAt(0);
+              //Если список пустой
               if(List->isEmpty())
                   timer->stop();
+              //Отправка следующей датаграммы
               else {
                    SendTcpDatagrams();
                    }
           }
-
+             //Количество полученных датаграмм +1
              receivedDatagramNumber++;
 
 
-
-          QByteArray arr;
-          QDataStream out(&arr, QIODevice::WriteOnly);
-          out<<sender<<senderPort<<current_number<<current_protocol<<msg;
+           //Массив для вывода на экран
+           QByteArray arr;
+          arr +="IP: "+ sender.toString()+"  Port:" + QString::number(senderPort)
+                  +"  Номер: " + QString::number(current_number)
+                  + "  Протокол: "+ QString::number(current_protocol)
+                  + "  Сообщение: " + msg;
+          //Сигнал, передающийся в mainwindow
           emit array(arr);
     }
 }

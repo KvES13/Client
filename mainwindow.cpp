@@ -41,27 +41,17 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-//Заполнение Списка
+//Заполнение списка с заданными параметрами
 void MainWindow::FillList()
 {
-    //Сделать нормально
-    QString msg;
-    for(int i = 0; i < sizeMessage; i++)
-    {
-        msg+="a";
-    }
-
-    for (quint32 i = 0; i < countDatagrams; i++)
-    {
-            client->FillList(i,CheckRetry(), msg,timeTcp);
-    }
+    client->FillList(countDatagrams,CheckRetry(), sizeMessage,timeTcp);
 }
 
-
+//Обработка нажатия на кнопку "Отправить"
 void MainWindow::on_SendButton_clicked()
 {
-//    for (int i = 0;i<10;i++)
-//        client->Send(i,"123456789");
+
+    //Если выбран пункт "Повторная отправка"
     if(CheckRetry())
     {
         client->SendTcpDatagrams();
@@ -78,19 +68,11 @@ void MainWindow::on_SendButton_clicked()
 
 void MainWindow::showArray(QByteArray arr)
 {
-  QDataStream in(&arr, QIODevice::ReadOnly);
-  quint32 number;
-  bool protocol;
-  QString msg;
-  QHostAddress sender;
-  quint16 senderPort;
 
-  in>>sender>>senderPort>>number>>protocol>>msg;
-  ui->plainTextEdit->appendPlainText("IP: "+ sender.toString()+"  Port:" + QString::number(senderPort)
-                                     +"  Номер: " + QString::number(number)
-                                     + "  Протокол: "+ QString::number(protocol)
-                                     + "  Сообщение: " + msg);
+  //Вывод массива с ифнормацией о сообщении на экран
+  ui->plainTextEdit->appendPlainText(arr);
 
+  //Число отправленных / полученных датаграмм
   count_send = client->GetSentDatagramNumber();
   count_rec = client->GetReceivedDatagramNumber();
 
@@ -148,6 +130,7 @@ void MainWindow::on_lineTimeTcp_textChanged(const QString &arg1)
 //Проверка чекбокса
 bool MainWindow::CheckRetry()
 {
+    //Если выбран пункт "Повторная отправка"
     if(ui->checkBox_Retry->isChecked())
     {
         ui->lineTimeTcp->setEnabled(true);
@@ -160,6 +143,7 @@ bool MainWindow::CheckRetry()
     }
 }
 
+//Изменение состояния чекбокса
 void MainWindow::on_checkBox_Retry_stateChanged(int arg1)
 {
     CheckRetry();

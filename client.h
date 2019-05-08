@@ -14,7 +14,7 @@
 /* Сообщение */
 struct Message
 {
-    quint32 number;       //Номер сообщения
+    int number;       //Номер сообщения
     bool protocol;  //Номер протокола
     QString text;     //Текст сообщения
     QString checkSum; //Контрольная сумма
@@ -33,12 +33,7 @@ class Client : public QObject
     Q_OBJECT
 public:
     explicit Client(QObject *parent = nullptr);
-//    Client(int count, int size, int time)
-//    {
-////        countDatagram = count;
-////        SizeMessage = size;
-////        TimeTcp = time;
-//    }
+
     ~Client();
 
 signals:
@@ -55,7 +50,7 @@ public slots:
     // Сброс
     void Reset();
     //Заполнение списка TCP сообщений
-    void FillList(quint32 id,bool protocol, QString data, int timeTcp);
+    void FillList(int count,bool protocol, int size, int timeTcp);
     //Число полученных в ответ датаграмм
     int GetReceivedDatagramNumber();
     //Число отправленных датаграмм
@@ -75,7 +70,7 @@ private:
     quint16 port;
     //Список сообщений
     QList<Message*> *List = nullptr;
-  //  QList<Message*> *udpList = nullptr;
+    QTimer *timerRec = nullptr;
     //Таймер для повторной отправки сообщения
     //по протоколу TCP
     QTimer *timer = nullptr;
@@ -83,7 +78,7 @@ private:
     int receivedDatagramNumber =0;
     //Число отправленных датаграмм
     int sentDatagramNumber =0; //Sent или по-другому?
-    int countDatagram;
+    int countDatagram ;
     int SizeMessage;
     int TimeTcp;
 
@@ -91,6 +86,7 @@ private:
 private slots:
     //Отправка повторного сообщения по истечению таймера
     void OnTimer();
+    void MsgTimeOut();
 
 
 };
