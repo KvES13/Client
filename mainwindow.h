@@ -20,26 +20,20 @@ private:
       Ui::MainWindow *ui;
       //
       Client *client;
-      //Таймер
-      QTimer *timer = nullptr;
-      //Число отправленных сообщений
-      int count_send;
-      //Число полученных сообщений
-      int count_rec;
       //Заданное количество сообщений
       int countDatagrams;
 
       //Размер одного сообщения
       int sizeMessage;
-      //Время для повторной отправки сообщения по протоколу tcp
+      //Время для повторной отправки сообщения
       int timeTcp;
-      //
+      //Состояние радиобатона "Повторная отправка"
       bool radioButTcp;
+      QString str;
 public slots:
-  //  quint32 check_order (quint32 &prev, quint32 &cur );
-  //  quint32 check_sum (int &sum, QString &message );
 
-    void showArray(QByteArray arr);
+    void showArray(const QString & arr);
+    void showInfo (const QString &info);
 
 private slots:
     //Обработка нажатия на кнопку "Отправить"
@@ -57,8 +51,11 @@ private slots:
     //Проверка чекбокса
     bool CheckRetry();
 
-
     void on_checkBox_Retry_stateChanged(int arg1);
+    void on_linePort_2_textChanged(const QString &arg1);
+    void on_lineAddress_2_textChanged(const QString &arg1);
+    void on_lineSizeTcp_editingFinished();
+    void on_ClearButton_2_clicked();
 };
 
 #endif // MAINWINDOW_H

@@ -10,23 +10,14 @@
 #include <QTimer>
 #include <QDebug>
 #include <QCryptographicHash>
+#include <QTime>
+#include <QDateTime>
+#include <memory>
+#include "message.h"
+#include "statistics_handler.h"
 
-/* Сообщение */
-struct Message
-{
-    int number;       //Номер сообщения
-    bool protocol;  //Номер протокола
-    QString text;     //Текст сообщения
-    QString checkSum; //Контрольная сумма
-    //Конструктор
-    Message(int _number,bool _protocol, QString _text, QString _checkSum)
-    {
-        number = _number;
-        protocol = _protocol;
-        text = _text;
-        checkSum =_checkSum;
-    }
-};
+
+
 
 class Client : public QObject
 {
@@ -37,8 +28,10 @@ public:
     ~Client();
 
 signals:
-
-    void array(QByteArray arr);
+    //Сигнал, выводящий информацию о входящем сообщении
+    void array(const QString& arr);
+    //Сигнал, выводящий общую статистику
+    void stat(const QString& info);
 
 public slots:
     //Отправление датаграмм по TCP
@@ -49,45 +42,38 @@ public slots:
     void ReadDatagrams();
     // Сброс
     void Reset();
-    //Заполнение списка TCP сообщений
+    //Заполнение списка сообщений
     void FillList(int count,bool protocol, int size, int timeTcp);
-    //Число полученных в ответ датаграмм
-    int GetReceivedDatagramNumber();
-    //Число отправленных датаграмм
-    int GetSentDatagramNumber();  // Sent или по-другому?
     //IP адрес получателя
-    QString GetServerAdrress();
+    QString GetServerAdrress() const;
     //Номер протокола получателя
-    QString GetServerPort();
-
-
+    QString GetServerPort() const;
+    void SetServerPort(quint16 port);
+    void SetServerAddress(QHostAddress  servAddress);
 private:
-    //
+
     QUdpSocket *udpsocket = nullptr;
     //IP адрес
     QHostAddress address;
     //Номер порта
     quint16 port;
     //Список сообщений
-    QList<Message*> *List = nullptr;
+    QVector<Message> messages;
+
+    //Тайм-аут соединения
     QTimer *timerRec = nullptr;
     //Таймер для повторной отправки сообщения
-    //по протоколу TCP
     QTimer *timer = nullptr;
-    //Число полученных датаграмм
-    int receivedDatagramNumber =0;
-    //Число отправленных датаграмм
-    int sentDatagramNumber =0; //Sent или по-другому?
-    int countDatagram ;
-    int SizeMessage;
-    int TimeTcp;
+    QTime time;
 
+    int SizeMessage;
+
+   std::unique_ptr<StatisticsHandler> statHandler;
 
 private slots:
     //Отправка повторного сообщения по истечению таймера
     void OnTimer();
     void MsgTimeOut();
-
 
 };
 
