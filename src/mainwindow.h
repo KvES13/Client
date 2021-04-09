@@ -29,7 +29,7 @@ private:
       int timeTcp;
       //Состояние радиобатона "Повторная отправка"
       bool radioButTcp;
-      QString str;
+      QString retryMsgState;
 public slots:
 
     void showArray(const QString & arr);

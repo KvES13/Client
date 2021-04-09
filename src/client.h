@@ -6,15 +6,21 @@
 #include <QUdpSocket>
 #include <QHostAddress>
 #include <QDataStream>
-#include <QList>
-#include <QTimer>
-#include <QDebug>
 #include <QCryptographicHash>
 #include <QTime>
+#include <QTimer>
+#include <QElapsedTimer>
+
 #include <QDateTime>
-#include <memory>
+
+#include <vector>
+
 #include "message.h"
 #include "statistics_handler.h"
+
+constexpr int kMaxIPValue = 255;
+constexpr uint16_t kMaxPort = 65535;
+constexpr int kMinInterval = 1000;
 
 
 
@@ -29,9 +35,9 @@ public:
 
 signals:
     //Сигнал, выводящий информацию о входящем сообщении
-    void array(const QString& arr);
+    void SendCurrentMsgStat(const QString& arr);
     //Сигнал, выводящий общую статистику
-    void stat(const QString& info);
+    void SendTotalStat(const QString& info);
 
 public slots:
     //Отправление датаграмм по TCP
@@ -40,7 +46,7 @@ public slots:
     void SendUdpDatagrams();
     //Чтение входящих датаграмм
     void ReadDatagrams();
-    // Сброс
+    // Обнуление значений
     void Reset();
     //Заполнение списка сообщений
     void FillList(int count,bool protocol, int size, int timeTcp);
@@ -48,28 +54,28 @@ public slots:
     QString GetServerAdrress() const;
     //Номер протокола получателя
     QString GetServerPort() const;
-    void SetServerPort(quint16 port);
+    void SetServerPort(uint16_t port);
     void SetServerAddress(QHostAddress  servAddress);
 private:
 
+    //UDP сокет
     QUdpSocket *udpsocket = nullptr;
     //IP адрес
-    QHostAddress address;
+    QHostAddress serverAddress;
     //Номер порта
-    quint16 port;
+    uint16_t serverPort;
     //Список сообщений
     QVector<Message> messages;
 
     //Тайм-аут соединения
-    QTimer *timerRec = nullptr;
+    QTimer timerRec;
     //Таймер для повторной отправки сообщения
-    QTimer *timer = nullptr;
+    QTimer timer;
     QTime time;
 
-    int SizeMessage;
+    int sizeMessage;
 
    std::unique_ptr<StatisticsHandler> statHandler;
-
 private slots:
     //Отправка повторного сообщения по истечению таймера
     void OnTimer();

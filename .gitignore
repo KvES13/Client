@@ -1,1 +1,56 @@
-*.pro.*
+.ycm_extra_conf*
+*.exe
+*.o
+*.obj
+*.user
+*.user.*
+tmp
+*.ncb
+*.vcproj
+*.vcproj.*
+bin
+Makefile
+*.docx
+*.swp
+*.autosave
+nudar.sh
+.qmake.stash
+*.png
+ispu.dot
+
+compile_commands.json
+
+# ignore tags files
+TAGS
+GPATH
+GRTAGS
+GSYMS
+GTAGS
+
+# ignore top-level archives
+/*.tar.gz
+/*.tgz
+
+# ignore saved logs
+*.log
+*.reg
+*_reg.txt
+
+logs
+
+# ignore auto-generated makefiles
+makefile
+Makefile*
+
+# ignore saved build arguments
+build.args
+
+# ignore slickEdit files
+*.vpj
+*.vpw*
+*.vtg
+
+#ignore Visual Studio Bin files
+*.sdf
+*.suo
+

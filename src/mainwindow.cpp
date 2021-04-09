@@ -16,7 +16,6 @@ MainWindow::MainWindow(QWidget *parent) :
     //Вывод на экран номер порта получателя
     ui->linePort_2->setText((client->GetServerPort()));
 
-
     //Задание начальных значений
     //Количество сообщений
     countDatagrams=ui->lineCountTcp->text().toInt();
@@ -25,14 +24,13 @@ MainWindow::MainWindow(QWidget *parent) :
     //Время таймера
     timeTcp=ui->lineTimeTcp->text().toInt();
 
-    connect(client,SIGNAL(array(const QString&)),this,SLOT(showArray(const QString&)));
-    connect(client,SIGNAL(stat(const QString&)),this,SLOT(showInfo(const QString&)));
+    connect(client,&Client::SendCurrentMsgStat,this,&MainWindow::showArray);
+    connect(client,&Client::SendTotalStat,this,&MainWindow::showInfo);
 
 }
 
 MainWindow::~MainWindow()
 {
-//    delete client;
     delete ui;
 }
 
@@ -49,32 +47,21 @@ void MainWindow::on_SendButton_clicked()
     FillList();
 
     //Если выбран пункт "Повторная отправка"
-    if(CheckRetry())
-    {
-        client->SendTcpDatagrams();
-    }
-    else
-    {
-        client->SendUdpDatagrams();
-    }
-
+    CheckRetry() == true ? client->SendTcpDatagrams()
+                         : client->SendUdpDatagrams();
 }
-
 
 void MainWindow::showArray(const QString &arr)
 {
-
   //Вывод массива с ифнормацией о сообщении на экран
   ui->plainTextEdit->appendPlainText(arr);
-
-
 }
 void MainWindow::showInfo(const QString &info)
 {
      ui->textBrowser->setText("Начальные значения:\n"
                               "IP адрес " +client->GetServerAdrress()+
                               " Порт " + client->GetServerPort() +"\n" +
-                              "Повтор сообщения: " +str +
+                              "Повтор сообщения: " +retryMsgState +
                               " Количество "+ QString::number(countDatagrams) +
                               " Размер " + QString::number(sizeMessage)+"\n" +
                                 info);
@@ -84,7 +71,6 @@ void MainWindow::showInfo(const QString &info)
 //Обрабокта нажатия на кнопку "Удалить"
 void MainWindow::on_ClearButton_clicked()
 {
-
     //Очистка
     ui->plainTextEdit->clear();
     ui->textBrowser->clear();
@@ -92,7 +78,6 @@ void MainWindow::on_ClearButton_clicked()
     //Обнуление списков,
     //количества отправленных/полученных датаграмм
     client->Reset();
-
 
 }
 
@@ -121,13 +106,13 @@ bool MainWindow::CheckRetry()
     if(ui->checkBox_Retry->isChecked())
     {
         ui->lineTimeTcp->setEnabled(true);
-        str = "ВКЛ";
+        retryMsgState = "ВКЛ";
         return true;
     }
     else
     {
         ui->lineTimeTcp->setEnabled(false);
-        str = "ВЫКЛ";
+        retryMsgState = "ВЫКЛ";
         return false;
     }
 }
@@ -143,39 +128,47 @@ void MainWindow::on_checkBox_Retry_stateChanged(int arg1)
 void MainWindow::on_linePort_2_textChanged(const QString &arg1)
 {
     Q_UNUSED(arg1);
-    if (ui->linePort_2->text().toInt() >65553)
+    uint16_t port = ui->linePort_2->text().toUInt();
+    if (port > kMaxPort)
     {
         QMessageBox messageBox;
-        messageBox.critical(0,"Error","Введите номер порта \n в диапазоне от 0 до 65535");
-
+        messageBox.critical(0,"Error",QString("Введите номер порта \n "
+                                "в диапазоне от 0 до %1").arg(kMaxPort));
     }
+    else
+        client->SetServerPort(port);
 }
 //Корректность номера порта Ip
 void MainWindow::on_lineAddress_2_textChanged(const QString &arg1)
 {
     Q_UNUSED(arg1);
-    if (ui->lineAddress_2->text().toInt() >255)
+    /// @todo Валидатор
+    if (ui->lineAddress_2->text().toInt() >kMaxIPValue)
     {
-        QMessageBox messageBox;
-        messageBox.critical(0,"Error","IP-адрес должен быть в формате\n\
-                               XXX.XXX.XXX.XXX (XXX - от 0 до 255)");
-
+        QMessageBox::critical(0,"Error","IP-адрес должен быть в формате\n\
+                                    XXX.XXX.XXX.XXX (XXX - от 0 до 255)");
     }
+    else
+        client->SetServerAddress(QHostAddress{ui->lineAddress_2->text()});
+
 }
 
 void MainWindow::on_lineSizeTcp_editingFinished()
 {
+    /// @todo Вспомнить, почему 65507
     if (ui->lineSizeTcp->text().toInt() >65507)
     {
         QMessageBox messageBox;
-        messageBox.critical(0,"Error","Размер пользовательских данных \n не должен превышать 65507 байт");
+        messageBox.critical(0,"Error","Размер пользовательских данных \n "
+                              "не должен превышать 65507 байт");
 
     }
 }
 
 void MainWindow::on_ClearButton_2_clicked()
 {
-    QMessageBox messageBox;
-    messageBox.information(0,"Info","Данные сохранены в файл \n output2205.csv");
-
+//    QDateTime dt;
+//    dt.currentDateTime();
+//    QMessageBox::information(0,"Info","Данные сохранены в файл \n"
+//                                        +dt.toString()+".csv");
 }

@@ -1,26 +1,19 @@
 #include "client.h"
 
-//#define address QHostAddress::LocalHost
-#define address QHostAddress("192.168.1.39")
-//#define serveraddress QHostAddress::LocalHost
-//#define serveraddress QHostAddress("192.168.1.62")
-#define serveraddress QHostAddress("127.0.0.1")
-#define serverport 5000
-
 
 Client::Client(QObject *parent) : QObject(parent)
 {
     udpsocket = new QUdpSocket(this);
 
+    serverPort = 5000; // default
+    serverAddress = QHostAddress::LocalHost;
+
     statHandler = std::make_unique<StatisticsHandler>();
 
     connect(udpsocket,SIGNAL(readyRead()),this,SLOT(ReadDatagrams()));
 
-    timer = new QTimer(this);
-    timerRec = new QTimer(this);
-
-    connect(timer,SIGNAL(timeout()),this,SLOT(OnTimer()));
-    connect(timerRec,SIGNAL(timeout()),this,SLOT(MsgTimeOut()));
+    connect(&timer,SIGNAL(timeout()),this,SLOT(OnTimer()));
+    connect(&timerRec,SIGNAL(timeout()),this,SLOT(MsgTimeOut()));
 }
 
 Client::~Client()
@@ -34,7 +27,7 @@ void Client::FillList(int count,bool protocol, int size, int timeTcp)
 {
 //32713 = 65507
     //Заполнение
-    SizeMessage = size;
+    sizeMessage = size;
     for (int j=0;j<count; j++)
     {
         QString msg;
@@ -50,16 +43,19 @@ void Client::FillList(int count,bool protocol, int size, int timeTcp)
     }
 
      //Установка значения для таймера
-     timer->setInterval(timeTcp);
+     timer.setInterval(timeTcp);
+//    QTimer t;
+//    t.setInterval(100);
+
 
      //Тайм-аут соединения
-     if(timeTcp<1000)
+     if(timeTcp<kMinInterval)
      {
-        timerRec->setInterval(2000);
+        timerRec.setInterval(kMinInterval*2);
      }
      else
      {
-        timerRec->setInterval(timeTcp*2);
+        timerRec.setInterval(timeTcp*2);
      }
 
 }
@@ -70,8 +66,8 @@ void Client::FillList(int count,bool protocol, int size, int timeTcp)
 void Client::SendTcpDatagrams()
 {
     OnTimer();
-    timer->start();
-    timerRec->start();
+    timer.start();
+    timerRec.start();
 }
 
 //Отправка TCP датаграмм
@@ -87,7 +83,7 @@ void Client::OnTimer()
             << messages[0].text
             << messages[0].checkSum
             << messages[0].condition;
-        udpsocket->writeDatagram(message, serveraddress, serverport);
+        udpsocket->writeDatagram(message, serverAddress, serverPort);
         time.start();
         statHandler->datagrams.sentNumber++;
         statHandler->datagrams.sentSize+=message.size();
@@ -95,36 +91,36 @@ void Client::OnTimer()
 }
 void Client:: MsgTimeOut()
 {
-    QString errorMsg ="Не удается получить ответ от "+serveraddress.toString() +
-            QString::number(serverport); //serveraddress.toString()
-    emit array(errorMsg);
+    QString errorMsg ="Не удается получить ответ от "+serverAddress.toString() +
+            QString::number(serverPort); //serveraddress.toString()
+    emit SendCurrentMsgStat(errorMsg);
 }
 //Отправка UDP датаграмм
 void Client::SendUdpDatagrams()
 {
-    timerRec->start();
-    for (auto &&msg : messages)
+    timerRec.start();
+    QByteArray message;
+    QDataStream out(&message, QIODevice::WriteOnly);
+    for (auto &msg : messages)
     {
-        QByteArray message;
-        QDataStream out(&message, QIODevice::WriteOnly);
-
         out << msg.number
             << msg.tcp_imitation
             << msg.text
             << msg.checkSum
             << msg.condition;
-        udpsocket->writeDatagram(message, serveraddress, serverport);
+        udpsocket->writeDatagram(message, serverAddress, serverPort);
 
         statHandler->datagrams.sentNumber++;
         statHandler->datagrams.sentSize+=message.size();
+
     }
 }
 
 void Client::Reset()
 {
     //Остановка таймеров
-    timer->stop();
-    timerRec->stop();
+    timer.stop();
+    timerRec.stop();
     //Обнуление значений
     messages.clear();
     statHandler->Clear();
@@ -157,7 +153,7 @@ void Client::ReadDatagrams()
               msg.text   >> msg.checkSum >> msg.condition;
 
         //Остановка таймера таймаута
-        timerRec->stop();
+        timerRec.stop();
         QString timeZe ="";
         int t =0;
 
@@ -167,8 +163,11 @@ void Client::ReadDatagrams()
         if(msg.tcp_imitation)
         {
             //Остановка таймера
-            timer->stop();
+            timer.stop();
             t= time.elapsed();
+
+
+
 
             if(msg.condition == MistakeTypes::Success ||
                     msg.condition == MistakeTypes::Duplicate)
@@ -178,7 +177,7 @@ void Client::ReadDatagrams()
             }
             //Если список пустой
             if(messages.isEmpty())
-                timer->stop();
+                timer.stop();
             //Отправка следующей датаграммы
             else
                 SendTcpDatagrams();
@@ -197,14 +196,24 @@ void Client::ReadDatagrams()
 
        //Массив для вывода на экран
       //Сигнал, передающийся в mainwindow
-      emit array("Ответ от 192.168.1.62 "+ QString::number(senderPort)
-               +"  Номер =" + QString::number(msg.number)
-               +"  Размер =" + QString::number(SizeMessage) + " байт " +
-               timeZe+ " Состояние = " +
-               QString::number(static_cast<int>(msg.condition)));
+
+        emit SendCurrentMsgStat(QString("Ответ от %1 %2 Номер = %3  "
+                                "Размер =%4 байт %5 Состояние = %6")
+                                .arg(serverAddress.toString())
+                                .arg(senderPort)
+                                .arg(msg.number)
+                                .arg(sizeMessage)
+                                .arg(timeZe)
+                                .arg(static_cast<int>(msg.condition)));
+
+//      emit SendCurrentMsgStat("Ответ от 192.168.1.62 "+ QString::number(senderPort)
+//               +"  Номер =" + QString::number(msg.number)
+//               +"  Размер =" + QString::number(sizeMessage) + " байт " +
+//               timeZe+ " Состояние = " +
+//               QString::number(static_cast<int>(msg.condition)));
 
 
-      emit stat(statHandler->getInfo());
+      emit SendTotalStat(statHandler->getInfo());
     }
 }
 
@@ -212,22 +221,24 @@ void Client::ReadDatagrams()
 //Адрес сервера
 QString Client::GetServerAdrress() const
 {
-    return QHostAddress(serveraddress).toString();
+    return serverAddress.toString();
 }
 //Порт сервера
 QString Client::GetServerPort() const
 {
-    return QString::number(serverport);
+    return QString::number(serverPort);
 }
 
-void Client::SetServerPort(quint16 servPort)
+void Client::SetServerPort(uint16_t servPort)
 {
- //   serverport = servPort;
+    serverPort = servPort;
 }
 void Client::SetServerAddress(QHostAddress  servAddress)
 {
-   // serveraddress = servAddress;
+    serverAddress = servAddress;
 }
+
+
 
 
 
